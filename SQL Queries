@@ -1,0 +1,167 @@
+1. SQL Queries
+1.1. Weather Station Table Create Query
+CREATE TABLE dbo.tb_weather_station_data(
+ID int NOT NULL AUTO_INCREMENT,
+STN_ID nvarchar(255),
+STATION_NAME nvarchar(255),
+PROV_STATE_TERR_CODE char(10),	
+LATITUDE decimal(8,6),	
+LONGITUDE decimal(9,6),	
+TIMEZONE char(20),		
+CLIMATE_IDENTIFIER nvarchar(255),			
+FIRST_DATE datetime,
+LAST_DATE datetime,	
+DLY_FIRST_DATE datetime,	
+DLY_LAST_DATE	datetime
+)
+1.2. Weather Data Table Create Query
+CREATE TABLE dbo.tb_weather_data(
+LATITUDE nvarchar(255),
+LONGITUDE nvarchar(255),
+StationName nvarchar(255),
+ClimateID int,
+[Date/Time] datetime,
+Year int,
+Month int,
+Day int,
+[Data Quality] nvarchar(255),
+[Max Temp (∞C)] nvarchar(255),
+[Max Temp Flag] int,
+[Min Temp (∞C)] nvarchar(255),
+[Min Temp Flag] int,
+[Mean Temp (∞C)] nvarchar(255),
+[Mean Temp Flag] int,
+[Heat Deg Days (∞C)] nvarchar(255),
+[Heat Deg Days Flag] int,
+[Cool Deg Days (∞C)] nvarchar(255),
+[Cool Deg Days Flag] int,
+[Total Rain (mm)] nvarchar(255),
+[Total Rain Flag] int,
+[Total Snow (cm)] nvarchar(255),
+[Total Snow Flag] int,
+[Total Precip (mm)] nvarchar(255),
+[Total Precip Flag] int,
+[Snow on Grnd (cm)] nvarchar(255),
+[Snow on Grnd Flag] int,
+[Dir of Max Gust (10s deg)] nvarchar(255),
+[Dir of Max Gust Flag] int,
+[Spd of Max Gust (km/h)] nvarchar(255),
+[Spd of Max Gust Flag] int
+)
+ALTERNATE
+CREATE TABLE dbo.tb_weather_data(
+PRIMARY_ID int IDENTITY(1,1) PRIMARY KEY,
+x decimal(9,6),
+y decimal(8,6),
+LOCAL_DAY int,
+SPEED_MAX_GUST_FLAG char,
+HEATING_DEGREE_DAYS float,
+TOTAL_SNOW_FLAG char,
+SNOW_ON_GROUND float,
+MAX_TEMPERATURE float,
+MIN_REL_HUMIDITY_FLAG char,
+MIN_TEMPERATURE float,
+CLIMATE_IDENTIFIER int,
+MEAN_TEMPERATURE_FLAG char,
+STATION_NAME nvarchar(255),
+TOTAL_RAIN_FLAG char,
+TOTAL_PRECIPITATION float,
+LOCAL_YEAR int,
+DIRECTION_MAX_GUST float,
+MAX_REL_HUMIDITY_FLAG char,
+MAX_TEMPERATURE_FLAG char,
+MIN_TEMPERATURE_FLAG char,
+COOLING_DEGREE_DAYS float,
+TOTAL_PRECIPITATION_FLAG char,
+HEATING_DEGREE_DAYS_FLAG char,
+MIN_REL_HUMIDITY float,
+TOTAL_RAIN float,
+TOTAL_SNOW float,
+MEAN_TEMPERATURE float,
+MAX_REL_HUMIDITY float,
+LOCAL_MONTH int,
+LOCAL_DATE datetime,
+SNOW_ON_GROUND_FLAG char,
+ID nvarchar(255),
+DIRECTION_MAX_GUST_FLAG char,
+SPEED_MAX_GUST float,
+COOLING_DEGREE_DAYS_FLAG char,
+PROVINCE_CODE char
+)
+1.3. Forest Fire Table Create Query
+CREATE TABLE dbo.tb_forest_fire
+(
+ID int IDENTITY(1,1) PRIMARY KEY,
+FID int,
+SRC_AGENCY char(20),
+FIRE_ID nvarchar(255),
+FIRENAME nvarchar(255),
+LATITUDE decimal(8,6),
+LONGITUDE decimal(9,6),
+YEAR int,
+MONTH int,
+DAY int,
+REP_DATE datetime,
+ATTK_DATE datetime,
+OUT_DATE datetime,
+DECADE nvarchar(255),
+SIZE_HA nvarchar(255),
+CAUSE nvarchar(255),
+PROTZONE nvarchar(255),
+FIRE_TYPE nvarchar(255),
+MORE_INFO nvarchar(255),
+CFS_REF_ID nvarchar(255),
+CFS_NOTE1 nvarchar(255),
+CFS_NOTE2 nvarchar(255),
+ACQ_DATE date,
+SRC_AGY2 nvarchar(255),
+ECOZONE nvarchar(255),
+ECOZ_REF nvarchar(255),
+ECOZ_NAME nvarchar(255),
+ECOZ_NOM nvarchar(255)
+)
+1.4. Mapped View Query
+CREATE VIEW [dbo].[vw_mappedData] AS
+WITH A AS (
+SELECT ID
+,FID
+,FIRE_ID
+,LATITUDE
+,LONGITUDE
+,REP_DATE
+,OUT_DATE
+,SIZE_HA
+,YEAR
+,MONTH 
+,DAY
+FROM [dbo].[tb_forest_fire]
+),
+B AS (
+SELECT
+ID,
+CLIMATE_IDENTIFIER,
+LATITUDE,
+LONGITUDE,
+DLY_FIRST_DATE,
+DLY_LAST_DATE
+FROM [dbo].[tb_weather_station_data]
+)
+SELECT
+A.FID
+,A.FIRE_ID
+,A.LATITUDE AS FOREST_FIRE_LATITUDE
+,A.LONGITUDE AS FOREST_FIRE_LONGITUDE
+,A.REP_DATE
+,A.OUT_DATE
+,A.SIZE_HA
+,A.YEAR
+,A.MONTH   
+,A.DAY
+,B.CLIMATE_IDENTIFIER
+,B.LATITUDE AS WEATHER_STATION_LATITUDE
+,B.LONGITUDE AS WEATHER_STATION_LONGITUDE
+,B.DLY_FIRST_DATE
+,B.DLY_LAST_DATE
+FROM A
+INNER JOIN B
+ON A.ID = A.ID
